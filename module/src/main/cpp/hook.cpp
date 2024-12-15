@@ -34,7 +34,7 @@
 #include "Rect.h"
 #include <fstream>
 #include <limits>
-#define GamePackageName "com.kiloo.subwaysurf"
+#define GamePackageName "com.asobimo.toramonline" // define the game package name here please
 
 
 int glHeight, glWidth;

@@ -12,11 +12,11 @@ void DrawMenu()
 {
     static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     {
-        Begin(OBFUSCATE("Ｍｉｙａｎ | Subway Surfers"));
+        Begin(OBFUSCATE("EYEFREE | TORAM ONLINE"));
         ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_FittingPolicyResizeDown;
         if (BeginTabBar("Menu", tab_bar_flags)) {
             if (BeginTabItem(OBFUSCATE("Player Menu"))) {
-                Checkbox(OBFUSCATE("Unlimited Jump"), &UnliJump);
+                Checkbox(OBFUSCATE("God Mode"), &cGod);
                 EndTabItem();
             }
             EndTabBar();
