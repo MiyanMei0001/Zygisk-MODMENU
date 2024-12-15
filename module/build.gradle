@@ -13,7 +13,9 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         externalNativeBuild {
             cmake {
-                arguments "-DMODULE_NAME:STRING=$moduleLibraryName", "-DCMAKE_EXPORT_COMPILE_COMMANDS:STRING=ON"
+                arguments "-DMODULE_NAME:STRING=$moduleLibraryName"
+                // DELETE THIS IF NOT DEBUG BUILD
+                // cppFlags += "-DBIGSEX"
             }
         }
     }
@@ -26,6 +28,14 @@ android {
             version "3.18.1"
         }
     }
+    buildTypes{
+        release {
+            ndk {
+                abiFilters  'arm64-v8a'
+            }
+        }
+    }
+
 }
 
 repositories {
@@ -80,8 +90,8 @@ afterEvaluate {
         task("zip${variantCapped}", type: Zip) {
             dependsOn("prepareMagiskFiles${variantCapped}")
             from magiskDir
-            archiveFileName.set(zipName)
-            destinationDirectory.set(outDir)
+            archiveName zipName
+            destinationDir outDir
         }
 
         task("push${variantCapped}", type: Exec) {

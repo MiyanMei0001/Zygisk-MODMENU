@@ -1,9 +1,9 @@
 ext {
-    moduleLibraryName = "imgui_modmenu"
-    magiskModuleId = "zygisk_imgui_modmenu"
-    moduleName = "ImGui ModMenu"
-    moduleAuthor = "AKNoryx28"
-    moduleDescription = "ImGui android menu."
-    moduleVersion = "v1.0.0"
+    moduleLibraryName = "EYEEYE"
+    magiskModuleId = "EYEEYE"
+    moduleName = "EYEEYE"
+    moduleAuthor = "EYEEYE"
+    moduleDescription = "Imgu Mod Menu Toram AUTO UPDATE"
+    moduleVersion = "v1.0"
     moduleVersionCode = 1
 }

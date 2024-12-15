@@ -11,7 +11,7 @@ message("Build type: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_CXX_STANDARD 20)
 
 set(LINKER_FLAGS "-ffixed-x18 -Wl,--hash-style=both")
-set(C_FLAGS "-Werror=format -fdata-sections -ffunction-sections")
+set(C_FLAGS "-Werror=format -fdata-sections -ffunction-sections -lz")
 set(CXX_FLAGS "${CXX_FLAGS} -fno-exceptions -fno-rtti")
 
 if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -27,57 +27,35 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS} ${CXX_FLAGS}")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${LINKER_FLAGS}")
 set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${LINKER_FLAGS}")
 
-include_directories(
-    Dobby/include
-    imgui
-    imgui/backends
-    xdl/include
-    KittyMemory
-)
+include_directories(KittyMemory)
+include_directories(Include)
+include_directories(Includes)
+include_directories(ImGui)
+include_directories(ImGui/backends)
 
-aux_source_directory(xdl xdl-src)
+add_library(${MODULE_NAME}
+        SHARED
+        ImGui/imgui.cpp
+        ImGui/imgui_draw.cpp
+        ImGui/imgui_demo.cpp
+        ImGui/imgui_widgets.cpp
+        ImGui/imgui_tables.cpp
+        ImGui/backends/imgui_impl_opengl3.cpp
+        ImGui/backends/imgui_impl_android.cpp
+        KittyMemory/KittyArm64.cpp
+        KittyMemory/KittyMemory.cpp
+        KittyMemory/KittyScanner.cpp
+        KittyMemory/KittyUtils.cpp
+        KittyMemory/MemoryBackup.cpp
+        KittyMemory/MemoryPatch.cpp
+        ByNameModding/Il2Cpp.cpp
+        ByNameModding/Tools.cpp
+        main.cpp
+        hook.cpp
+        )
 
-option(DOBBY_GENERATE_SHARED "Build shared library" ON)
-option(DOBBY_DEBUG "Enable debug logging" OFF)
-option(NearBranch "Enable near branch trampoline" ON)
-option(FullFloatingPointRegisterPack "Save and pack all floating-point registers" OFF)
-option(Plugin.SymbolResolver "Enable symbol resolver" ON)
-option(Plugin.ImportTableReplace "Enable import table replace " OFF)
-option(Plugin.Android.BionicLinkerUtil "Enable android bionic linker util" OFF)
-option(BUILD_EXAMPLE "Build example" OFF)
-option(BUILD_TEST "Build test" OFF)
-
-set(IMGUI_SRC
-    imgui/imgui.cpp
-    imgui/imgui_demo.cpp
-    imgui/imgui_draw.cpp
-    imgui/imgui_tables.cpp
-    imgui/imgui_widgets.cpp
-    imgui/backends/imgui_impl_android.cpp
-    imgui/backends/imgui_impl_opengl3.cpp
-)
-file(GLOB KITTY_MEMORY_SRC ${PROJECT_SOURCE_DIR}/KittyMemory/*.cpp)
-
-add_library(${MODULE_NAME} SHARED main.cpp hack.cpp utils.cpp ${IMGUI_SRC} ${xdl-src} ${KITTY_MEMORY_SRC})
-
-if(NOT TARGET dobby)
-set(DOBBY_DIR Dobby)
-macro(SET_OPTION option value)
-  set(${option} ${value} CACHE INTERNAL "" FORCE)
-endmacro()
-SET_OPTION(DOBBY_DEBUG OFF)
-SET_OPTION(DOBBY_GENERATE_SHARED OFF)
-add_subdirectory(${DOBBY_DIR} dobby)
-get_property(DOBBY_INCLUDE_DIRECTORIES
-  TARGET dobby
-  PROPERTY INCLUDE_DIRECTORIES)
-include_directories(
-  .
-  ${DOBBY_INCLUDE_DIRECTORIES}
-  $<TARGET_PROPERTY:dobby,INCLUDE_DIRECTORIES>
-)
-endif()
-
+set(DOBBY_LIB ${CMAKE_CURRENT_SOURCE_DIR}/libs/${CMAKE_ANDROID_ARCH_ABI}/libdobby.a)
+set(CURL_LIB ${CMAKE_CURRENT_SOURCE_DIR}/libs/${CMAKE_ANDROID_ARCH_ABI}/libcurl.a)
 find_library(log-lib log)
 find_library(egl EGL)
 find_library(android android)
@@ -95,12 +73,14 @@ else ()
     set(OPENGL_LIB GLESv3)
 endif (${ANDROID_PLATFORM_LEVEL} LESS 12)
 
-target_link_libraries(${MODULE_NAME} log dobby
+target_link_libraries(
+        ${MODULE_NAME} log
+        ${DOBBY_LIB}
+        ${CURL_LIB}
         ${OPENGL_LIB}
         ${GLESV2_LIB}
         ${android}
-        ${egl})
-
+        ${egl}  )
 if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_custom_command(TARGET ${MODULE_NAME} POST_BUILD
             COMMAND ${CMAKE_STRIP} --strip-all --remove-section=.comment "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lib${MODULE_NAME}.so")
