@@ -12,16 +12,31 @@ void DrawMenu()
 {
     static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     {
-        Begin(OBFUSCATE("EYEFREE | TORAM ONLINE"));
+        Begin(OBFUSCATE("Miyan | Gold & Glory"));
         ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_FittingPolicyResizeDown;
         if (BeginTabBar("Menu", tab_bar_flags)) {
             if (BeginTabItem(OBFUSCATE("Player Menu"))) {
-                Checkbox(OBFUSCATE("God Mode"), &cGod);
+                Checkbox(OBFUSCATE("Unlimited Jump"), &unliJump);
+                Checkbox(OBFUSCATE("Can Equip All Armor"), &equipArmor);
+                Checkbox(OBFUSCATE("Can See Rogue Stealth"), &seeRogue);
+                Checkbox(OBFUSCATE("Can Through Player/Monster"), &throughAll);
+                EndTabItem();
+            }
+            if (BeginTabItem(OBFUSCATE("Loot Menu"))) {
+                Checkbox(OBFUSCATE("Can See Item Color In Chest"), &colorChest);
+                Checkbox(OBFUSCATE("Can Skip Looting Search"), &lootSearch);
+                EndTabItem();
+            }
+            if (BeginTabItem(OBFUSCATE("Skill Menu"))) {
+                SliderFloat(OBFUSCATE("Attack & Skill Speed"), &skillSpd, 1.0f, 10.0f);
+                EndTabItem();
+            }
+            if (BeginTabItem(OBFUSCATE("Teleport Menu"))) {
+                Checkbox(OBFUSCATE("Teleport All Player To Me"), &teleportAll);
                 EndTabItem();
             }
             EndTabBar();
         }
-//        Patches();
         End();
     }
 }
