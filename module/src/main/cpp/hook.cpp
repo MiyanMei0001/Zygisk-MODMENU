@@ -78,7 +78,9 @@ HOOKAF(void, Input, void *thiz, void *ex_ab, void *ex_ac)
 #include "functions.h"
 #include "menu.h"
 struct Vector3 {
-    float x, y, z;
+    float x;
+    float y;
+    float z;
 };
 
 int32_t (*oldSetJump)(void *instance) = nullptr;
@@ -93,7 +95,7 @@ void (*oldSetPosition)(void *instance, Vector3 position) = nullptr;
 
 int32_t SetJump(void *instance) {
     if (instance && unliJump) return 9999;
-    return oldSetJump ? oldSetJump(instance) : 0;
+    return oldSetJump(instance);
 }
 
 void SetStealth(void *instance) {
@@ -103,40 +105,40 @@ void SetStealth(void *instance) {
 
 bool SetThroughPlayer(void *instance) {
     if (instance && throughAll) return true;
-    return oldSetThroughPlayer ? oldSetThroughPlayer(instance) : false;
+    return oldSetThroughPlayer(instance);
 }
 
 bool SetThroughMonster(void *instance) {
     if (instance && throughAll) return true;
-    return oldSetThroughMonster ? oldSetThroughMonster(instance) : false;
+    return oldSetThroughMonster(instance);
 }
 
 bool SetChest(void *instance) {
     if (instance && colorChest) return true;
-    return oldSetChest ? oldSetChest(instance) : false;
+    return oldSetChest(instance);
 }
 
 float SetSkillSpd(void *instance) {
-    if (instance && skillSpd > 1.0f) return oldSetSkillSpd ? oldSetSkillSpd(instance) * skillSpd : 1.0f;
-    return oldSetSkillSpd ? oldSetSkillSpd(instance) : 0.0f;
+    if (instance && skillSpd > 1.0f) return oldSetSkillSpd(instance);
+    return oldSetSkillSpd(instance);
 }
 
 bool SetSearch(void *instance, uint64_t id) {
     if (instance && lootSearch) return true;
-    return oldSetSearch ? oldSetSearch(instance, id) : false;
+    return oldSetSearch(instance, id);
 }
 
 bool SetEquip(void *instance, int32_t inventoryId, uint64_t uid, int32_t charId, int32_t classId) {
     if (instance && equipArmor) return true;
-    return oldSetEquip ? oldSetEquip(instance, inventoryId, uid, charId, classId) : false;
+    return oldSetEquip(instance, inventoryId, uid, charId, classId);
 }
 
 void SetPosition(void *instance, Vector3 position) {
     if (instance && teleportAll) {
         Vector3 newPosition = { position.x, 100.0f, position.z };
-        return oldSetPosition ? oldSetPosition(instance, newPosition) : newPosition;
+        return oldSetPosition(instance, newPosition);
     }
-    return oldSetPosition ? oldSetPosition(instance, position) : position;
+    return oldSetPosition(instance, position);
 }
 
 void *hack_thread(void *arg) {
