@@ -1,6 +1,6 @@
 
 #include "../Include/obfuscate.h"
-#include "Il2cpp.h"
+#include "Il2Cpp.h"
 #include <iostream>
 #include <unordered_map>
 
