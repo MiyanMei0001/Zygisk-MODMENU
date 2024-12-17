@@ -83,15 +83,15 @@ struct Vector3 {
     float z;
 };
 
-int32_t (*oldSetJump)(void *instance) = nullptr;
-void (*oldSetStealth)(void *instance) = nullptr;
-bool (*oldSetThroughPlayer)(void *instance) = nullptr;
-bool (*oldSetThroughMonster)(void *instance) = nullptr;
-bool (*oldSetChest)(void *instance) = nullptr;
-float (*oldSetSkillSpd)(void *instance) = nullptr;
-bool (*oldSetSearch)(void *instance, uint64_t id) = nullptr;
-bool (*oldSetEquip)(void *instance, int32_t inventoryId, uint64_t uid, int32_t charId, int32_t classId) = nullptr;
-void (*oldSetPosition)(void *instance, Vector3 position) = nullptr;
+int32_t (*oldSetJump)(void *instance);
+void (*oldSetStealth)(void *instance);
+bool (*oldSetThroughPlayer)(void *instance);
+bool (*oldSetThroughMonster)(void *instance);
+bool (*oldSetChest)(void *instance);
+float (*oldSetSkillSpd)(void *instance);
+bool (*oldSetSearch)(void *instance, uint64_t id);
+bool (*oldSetEquip)(void *instance, int32_t inventoryId, uint64_t uid, int32_t charId, int32_t classId);
+void (*oldSetPosition)(void *instance, Vector3 position);
 
 int32_t SetJump(void *instance) {
     if (instance && unliJump) return 9999;
