@@ -77,6 +77,10 @@ HOOKAF(void, Input, void *thiz, void *ex_ab, void *ex_ac)
 
 #include "functions.h"
 #include "menu.h"
+struct Ambator3 {
+float x,y,z;
+};
+
 int32_t (*oldSetJump)(void *instance);
 void (*oldSetStealth)(void *instance);
 bool (*oldSetThroughPlayer)(void *instance);
@@ -85,7 +89,7 @@ bool (*oldSetChest)(void *instance);
 float (*oldSetSkillSpd)(void *instance);
 bool (*oldSetSearch)(void *instance, uint64_t id);
 bool (*oldSetEquip)(void *instance, int32_t inventoryId, uint64_t uid, int32_t charId, int32_t classId);
-void (*oldSetPosition)(void *instance, Vector3 position);
+void (*oldSetPosition)(void *instance, Ambator3 position);
 
 int32_t SetJump(void *instance) {
     if (instance && unliJump) return 9999;
@@ -127,9 +131,9 @@ bool SetEquip(void *instance, int32_t inventoryId, uint64_t uid, int32_t charId,
     return oldSetEquip(instance, inventoryId, uid, charId, classId);
 }
 
-void SetPosition(void *instance, Vector3 position) {
+void SetPosition(void *instance, Ambator3 position) {
     if (instance && teleportAll) {
-        Vector3 newPosition = { position.x, 100.0f, position.z };
+        Ambator3 newPosition = { position.x, 100.0f, position.z };
         return oldSetPosition(instance, newPosition);
     }
     return oldSetPosition(instance, position);
