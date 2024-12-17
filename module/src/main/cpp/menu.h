@@ -6,6 +6,14 @@
 #define ZYGISK_MENU_TEMPLATE_MENU_H
 #include "functions.h"
 
+bool unliJump = false;
+bool equipArmor = false;
+bool seeRogue = false;
+bool throughAll = false;
+bool colorChest = false;
+bool lootSearch = false;
+float skillSpd = 1.0f;
+bool teleportAll = false;
 using namespace ImGui;
 
 void DrawMenu()

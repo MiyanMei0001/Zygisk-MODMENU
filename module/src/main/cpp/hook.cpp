@@ -1,5 +1,6 @@
 #include <cstring>
 #include <cstdio>
+#include <cstdint>
 #include <unistd.h>
 #include <sys/system_properties.h>
 #include <dlfcn.h>
@@ -76,6 +77,67 @@ HOOKAF(void, Input, void *thiz, void *ex_ab, void *ex_ac)
 
 #include "functions.h"
 #include "menu.h"
+struct Vector3 {
+    float x, y, z;
+};
+
+int32_t (*oldSetJump)(void *instance) = nullptr;
+void (*oldSetStealth)(void *instance) = nullptr;
+bool (*oldSetThroughPlayer)(void *instance) = nullptr;
+bool (*oldSetThroughMonster)(void *instance) = nullptr;
+bool (*oldSetChest)(void *instance) = nullptr;
+float (*oldSetSkillSpd)(void *instance) = nullptr;
+bool (*oldSetSearch)(void *instance, uint64_t id) = nullptr;
+bool (*oldSetEquip)(void *instance, int32_t inventoryId, uint64_t uid, int32_t charId, int32_t classId) = nullptr;
+void (*oldSetPosition)(void *instance, Vector3 position) = nullptr;
+
+int32_t SetJump(void *instance) {
+    if (instance && unliJump) return 9999;
+    return oldSetJump ? oldSetJump(instance) : 0;
+}
+
+void SetStealth(void *instance) {
+    if (instance && seeRogue) return;
+    if (oldSetStealth) oldSetStealth(instance);
+}
+
+bool SetThroughPlayer(void *instance) {
+    if (instance && throughAll) return true;
+    return oldSetThroughPlayer ? oldSetThroughPlayer(instance) : false;
+}
+
+bool SetThroughMonster(void *instance) {
+    if (instance && throughAll) return true;
+    return oldSetThroughMonster ? oldSetThroughMonster(instance) : false;
+}
+
+bool SetChest(void *instance) {
+    if (instance && colorChest) return true;
+    return oldSetChest ? oldSetChest(instance) : false;
+}
+
+float SetSkillSpd(void *instance) {
+    if (instance && skillSpd > 1.0f) return oldSetSkillSpd ? oldSetSkillSpd(instance) * skillSpd : 1.0f;
+    return oldSetSkillSpd ? oldSetSkillSpd(instance) : 0.0f;
+}
+
+bool SetSearch(void *instance, uint64_t id) {
+    if (instance && lootSearch) return true;
+    return oldSetSearch ? oldSetSearch(instance, id) : false;
+}
+
+bool SetEquip(void *instance, int32_t inventoryId, uint64_t uid, int32_t charId, int32_t classId) {
+    if (instance && equipArmor) return true;
+    return oldSetEquip ? oldSetEquip(instance, inventoryId, uid, charId, classId) : false;
+}
+
+void SetPosition(void *instance, Vector3 position) {
+    if (instance && teleportAll) {
+        Vector3 newPosition = { position.x, 100.0f, position.z };
+        return oldSetPosition ? oldSetPosition(instance, newPosition) : newPosition;
+    }
+    return oldSetPosition ? oldSetPosition(instance, position) : position;
+}
 
 void *hack_thread(void *arg) {
     do {
@@ -83,7 +145,35 @@ void *hack_thread(void *arg) {
         g_il2cppBaseMap = KittyMemory::getLibraryBaseMap("libil2cpp.so");
     } while (!g_il2cppBaseMap.isValid());
 
-    Hooks();
+    IL2Cpp::Il2CppAttach();
+
+    Tools::Hook((void *)(uintptr_t)IL2Cpp::Il2CppGetMethodOffset(OBFUSCATE("KradGame.Logic.dll"), OBFUSCATE("KradGame.Logic"), OBFUSCATE("CharacterLogic"), OBFUSCATE("get_AirJumpCount"), 0),
+                (void *)SetJump, (void **)&oldSetJump);
+
+    Tools::Hook((void *)(uintptr_t)IL2Cpp::Il2CppGetMethodOffset(OBFUSCATE("KradGame.Logic.dll"), OBFUSCATE("KradGame.Logic"), OBFUSCATE("CharacterLogic"), OBFUSCATE("get_IgnoreCollision"), 0),
+                (void *)SetThroughPlayer, (void **)&oldSetThroughPlayer);
+
+    Tools::Hook((void *)(uintptr_t)IL2Cpp::Il2CppGetMethodOffset(OBFUSCATE("KradGame.Logic.dll"), OBFUSCATE("KradGame.Logic"), OBFUSCATE("MonsterLogic"), OBFUSCATE("get_IgnoreCollision"), 0),
+                (void *)SetThroughMonster, (void **)&oldSetThroughMonster);
+
+    Tools::Hook((void *)(uintptr_t)IL2Cpp::Il2CppGetMethodOffset(OBFUSCATE("KradGame.Logic.dll"), OBFUSCATE("KradGame.Logic"), OBFUSCATE("ChestBoxLogic"), OBFUSCATE("get_IsOpen"), 0),
+                (void *)SetChest, (void **)&oldSetChest);
+
+    Tools::Hook((void *)(uintptr_t)IL2Cpp::Il2CppGetMethodOffset(OBFUSCATE("KradGame.Logic.dll"), OBFUSCATE("KradGame.Logic"), OBFUSCATE("SkillLogic"), OBFUSCATE("GetSkillPlaySpeed"), 3),
+                (void *)SetSkillSpd, (void **)&oldSetSkillSpd);
+
+    Tools::Hook((void *)(uintptr_t)IL2Cpp::Il2CppGetMethodOffset(OBFUSCATE("KradGame.dll"), OBFUSCATE("KradGame"), OBFUSCATE("PEntity"), OBFUSCATE("ProcessEntityStealth"), 0),
+                (void *)SetStealth, (void **)&oldSetStealth);
+
+    Tools::Hook((void *)(uintptr_t)IL2Cpp::Il2CppGetMethodOffset(OBFUSCATE("KradGame.dll"), OBFUSCATE("KradGame"), OBFUSCATE("InventoryService"), OBFUSCATE("CanEquip"), 4),
+                (void *)SetEquip, (void **)&oldSetEquip);
+
+    Tools::Hook((void *)(uintptr_t)IL2Cpp::Il2CppGetMethodOffset(OBFUSCATE("KradGame.dll"), OBFUSCATE("KradGame"), OBFUSCATE("InventoryService"), OBFUSCATE("CheckItemSearched"), 1),
+                (void *)SetSearch, (void **)&oldSetSearch);
+
+    Tools::Hook((void *)(uintptr_t)IL2Cpp::Il2CppGetMethodOffset(OBFUSCATE("UnityEngine.CoreModule.dll"), OBFUSCATE("UnityEngine"), OBFUSCATE("Transform"), OBFUSCATE("set_position"), 1),
+                (void *)SetPosition, (void **)&oldSetPosition);
+                
     auto eglhandle = dlopen("libunity.so", RTLD_LAZY);
     auto eglSwapBuffers = dlsym(eglhandle, "eglSwapBuffers");
     DobbyHook((void*)eglSwapBuffers,(void*)hook_eglSwapBuffers,
