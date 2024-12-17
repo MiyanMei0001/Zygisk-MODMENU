@@ -77,12 +77,6 @@ HOOKAF(void, Input, void *thiz, void *ex_ab, void *ex_ac)
 
 #include "functions.h"
 #include "menu.h"
-struct Vector3 {
-    float x;
-    float y;
-    float z;
-};
-
 int32_t (*oldSetJump)(void *instance);
 void (*oldSetStealth)(void *instance);
 bool (*oldSetThroughPlayer)(void *instance);
