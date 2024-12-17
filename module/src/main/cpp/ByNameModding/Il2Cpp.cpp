@@ -1,5 +1,5 @@
 
-#include "../include/obfuscate.h"
+#include "../Include/obfuscate.h"
 #include "Il2cpp.h"
 #include <iostream>
 #include <unordered_map>
